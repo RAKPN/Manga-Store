@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manga Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Hide horizontal scrollbar */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #db2777;
+      border-radius: 4px;
+    }
+
+    /* PURE CSS TAB FILTERING LOGIC */
+    #tab-all:checked ~ section .grid-container .card { display: flex; }
+    
+    #tab-romance:checked ~ section .grid-container .card { display: none; }
+    #tab-romance:checked ~ section .grid-container .card-romance { display: flex; }
+
+    #tab-fantasy:checked ~ section .grid-container .card { display: none; }
+    #tab-fantasy:checked ~ section .grid-container .card-fantasy { display: flex; }
+
+    #tab-drama:checked ~ section .grid-container .card { display: none; }
+    #tab-drama:checked ~ section .grid-container .card-drama { display: flex; }
+
+    #tab-action:checked ~ section .grid-container .card { display: none; }
+    #tab-action:checked ~ section .grid-container .card-action { display: flex; }
+
+    #tab-bl:checked ~ section .grid-container .card { display: none; }
+    #tab-bl:checked ~ section .grid-container .card-bl { display: flex; }
+
+    /* Active State Styling for Category Tabs */
+    #tab-all:checked ~ section div label[for="tab-all"],
+    #tab-romance:checked ~ section div label[for="tab-romance"],
+    #tab-fantasy:checked ~ section div label[for="tab-fantasy"],
+    #tab-drama:checked ~ section div label[for="tab-drama"],
+    #tab-action:checked ~ section div label[for="tab-action"],
+    #tab-bl:checked ~ section div label[for="tab-bl"] {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      border-color: #f1f5f9;
+    }
+
+    /* Pure CSS Modal Toggle using :target */
+    #reader-modal:target {
+      display: flex;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans">
+
+  <!-- Navbar -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+      <a href="#" class="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+        <i class="fa-solid fa-book-open text-pink-500"></i>
+        Manga<span class="text-pink-500">Read</span>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="hidden sm:flex items-center bg-slate-800 border border-slate-700 rounded-full px-4 py-1.5 w-72 focus-within:border-pink-500 transition">
+        <i class="fa-solid fa-magnifying-glass text-slate-400 mr-2 text-sm"></i>
+        <input type="text" placeholder="Search manga, authors..." class="bg-transparent text-sm w-full text-white placeholder-slate-400 focus:outline-none">
+      </div>
+
+      <nav class="hidden md:flex gap-8 text-sm font-semibold tracking-wide items-center">
+        <a href="#" class="hover:text-pink-400 transition">Home</a>
+        <a href="#featured" class="hover:text-pink-400 transition">Popular Series</a>
+        <a href="#footer" class="hover:text-pink-400 transition">Contact</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="#reader-modal" class="bg-pink-600 text-white font-semibold px-5 py-2.5 rounded-full hover:bg-pink-500 shadow-lg shadow-pink-600/30 transition text-sm flex items-center gap-2">
+          <i class="fa-solid fa-book-open-reader"></i>
+          <span class="hidden sm:inline">Start Reading</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="py-16 text-center px-6 bg-gradient-to-b from-slate-900 to-slate-950">
+    <p class="text-pink-500 font-semibold uppercase tracking-widest text-sm mb-4">
+      Your Digital Manga Reader & Store
+    </p>
+
+    <h2 class="text-5xl md:text-7xl font-black mb-6 text-white tracking-tight">
+      Read Instant & Collect <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500">Manga Online</span>
+    </h2>
+
+    <p class="text-slate-400 max-w-3xl mx-auto text-lg leading-relaxed mb-4">
+      Stream thousands of manga chapters directly in high resolution or purchase physical collector's volumes delivered to your doorstep.
+    </p>
+  </section>
+
+  <!-- Pure CSS Radio Controllers for Tabs -->
+  <input type="radio" id="tab-all" name="manga-tab" class="hidden" checked>
+  <input type="radio" id="tab-romance" name="manga-tab" class="hidden">
+  <input type="radio" id="tab-fantasy" name="manga-tab" class="hidden">
+  <input type="radio" id="tab-drama" name="manga-tab" class="hidden">
+  <input type="radio" id="tab-action" name="manga-tab" class="hidden">
+  <input type="radio" id="tab-bl" name="manga-tab" class="hidden">
+
+  <!-- Featured Manga Grid Section -->
+  <section id="featured" class="max-w-7xl mx-auto px-6 py-6">
+
+    <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div>
+        <h2 class="text-4xl font-bold text-white mb-2 flex items-center gap-3">
+          <i class="fa-solid fa-fire text-pink-500 text-3xl"></i>
+          Trending Reader Picks
+        </h2>
+        <p class="text-slate-400">
+          Updated 4 hours ago. Click any title to open free preview chapters.
+        </p>
+      </div>
+      <a href="#" class="text-pink-400 hover:text-pink-300 font-semibold text-sm flex items-center gap-1">
+        Browse All Library <i class="fa-solid fa-arrow-right text-xs"></i>
+      </a>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="flex items-center gap-3 overflow-x-auto no-scrollbar py-2 mb-8 text-sm font-semibold">
+      <label for="tab-all" class="bg-slate-900 text-slate-300 border border-slate-700 hover:border-slate-500 hover:text-white px-6 py-2 rounded-full cursor-pointer transition whitespace-nowrap">Trending</label>
+      <label for="tab-romance" class="bg-slate-900 text-slate-300 border border-slate-700 hover:border-slate-500 hover:text-white px-6 py-2 rounded-full cursor-pointer transition whitespace-nowrap">Romance</label>
+      <label for="tab-fantasy" class="bg-slate-900 text-slate-300 border border-slate-700 hover:border-slate-500 hover:text-white px-6 py-2 rounded-full cursor-pointer transition whitespace-nowrap">Fantasy</label>
+      <label for="tab-drama" class="bg-slate-900 text-slate-300 border border-slate-700 hover:border-slate-500 hover:text-white px-6 py-2 rounded-full cursor-pointer transition whitespace-nowrap">Drama</label>
+      <label for="tab-action" class="bg-slate-900 text-slate-300 border border-slate-700 hover:border-slate-500 hover:text-white px-6 py-2 rounded-full cursor-pointer transition whitespace-nowrap">Action</label>
+      <label for="tab-bl" class="bg-slate-900 text-slate-300 border border-slate-700 hover:border-slate-500 hover:text-white px-6 py-2 rounded-full cursor-pointer transition whitespace-nowrap">Boys' Love (BL: M/M)</label>
+    </div>
+
+    <!-- Grid Container -->
+    <div class="grid-container grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
+
+      <!-- Card 1: Romance -->
+      <a href="#reader-modal" class="card card-romance flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/0.jpg" alt="Cold Dragon Prince" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">Once I Decided to Quit Being a Stand-In Fiancee</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Romance</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.7 <span class="text-slate-500 font-normal">(63)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            2 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2: Romance -->
+      <a href="#reader-modal" class="card card-romance flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/1.jpg" alt="The Wicked Woman" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">The Wicked Woman</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Romance</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.7 <span class="text-slate-500 font-normal">(63)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            2 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 3: Romance -->
+      <a href="#reader-modal" class="card card-romance flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/2.jpg" alt="The Rampart Of Ice" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+          <span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Sale</span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">The Rampart Of Ice</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Romance</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.8 <span class="text-slate-500 font-normal">(572)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            11 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 4: Romance -->
+      <a href="#reader-modal" class="card card-romance flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/5.jpg" alt="The Dragon Princes" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">The Dragon Princes</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Romance</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.7 <span class="text-slate-500 font-normal">(63)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            2 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 5: Romance -->
+      <a href="#reader-modal" class="card card-romance flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/6.jpg" alt="The Second Time With You" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">The Second Time With You</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Romance</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.7 <span class="text-slate-500 font-normal">(63)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            2 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 1: Fantasy -->
+      <a href="#reader-modal" class="card card-fantasy flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/f2.jpg" alt="The Ogre's Bride" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+          <span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Sale</span>
+          <span class="absolute bottom-0 left-1 text-6xl font-black text-white italic drop-shadow-[0_4px_4px_rgba(0,0,0,0.9)] leading-none select-none"></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">The Ogre's Bride</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Fantasy</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.6 <span class="text-slate-500 font-normal">(170)</span>
+          </div>
+          <div class="mt-2 w-full bg-white hover:bg-slate-200 text-slate-900 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            Free Preview
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2: Fantasy -->
+      <a href="#reader-modal" class="card card-fantasy flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/f1.jpg" alt="Though Banished" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+          <span class="absolute bottom-0 left-1 text-6xl font-black text-white italic drop-shadow-[0_4px_4px_rgba(0,0,0,0.9)] leading-none select-none"></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">Though Banished</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Fantasy</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.6 <span class="text-slate-500 font-normal">(99)</span>
+          </div>
+          <div class="mt-2 w-full bg-white hover:bg-slate-200 text-slate-900 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            Free Preview
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 3: Fantasy -->
+      <a href="#reader-modal" class="card card-fantasy flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/f3.jpg" alt="The Wicked Woman" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Sale</span>
+          <span class="absolute bottom-0 left-1 text-6xl font-black text-white italic drop-shadow-[0_4px_4px_rgba(0,0,0,0.9)] leading-none select-none"></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">The Wicked Woman</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="text-slate-400">Fantasy</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.9 <span class="text-slate-500 font-normal">(121)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            5 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 4: Fantasy -->
+      <a href="#reader-modal" class="card card-fantasy flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/f4.jpg" alt="The Princess Everyone Hates" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Sale</span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">The Princess Everyone Hates is the Beast King's Favorite</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="text-slate-400">Fantasy</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.9 <span class="text-slate-500 font-normal">(121)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            5 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 5: Fantasy -->
+      <a href="#reader-modal" class="card card-fantasy flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/6.jpg" alt="The Second Time With You" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">The Second Time With You</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Fantasy</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.6 <span class="text-slate-500 font-normal">(99)</span>
+          </div>
+          <div class="mt-2 w-full bg-white hover:bg-slate-200 text-slate-900 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            Free Preview
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 1: BL -->
+      <a href="#reader-modal" class="card card-bl flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/b1.jpg" alt="Bring A Wolf Home" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+          <span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Sale</span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">Bring A Wolf Home</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">BL</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.9 <span class="text-slate-500 font-normal">(310)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            3 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2: BL -->
+      <a href="#reader-modal" class="card card-bl flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/b2.jpg" alt="The Light Conjurer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+          <span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Sale</span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">The Light Conjurer</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">BL</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.9 <span class="text-slate-500 font-normal">(310)</span>
+          </div>
+          <div class="mt-2 w-full bg-white hover:bg-slate-200 text-slate-900 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            Free Preview
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 3: BL -->
+      <a href="#reader-modal" class="card card-bl flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/b3.jpg" alt="I Need To Suck Blood Tonight" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+          <span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Sale</span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">I Need To Suck Blood Tonight</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">BL</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.9 <span class="text-slate-500 font-normal">(310)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            3 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 1: Drama -->
+      <a href="#reader-modal" class="card card-drama flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/d1.jpg" alt="Burned-Out Rika" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">Burned-Out Rika Can't Take Care of Herself</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="text-slate-400">Drama</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.5 <span class="text-slate-500 font-normal">(215)</span>
+          </div>
+          <div class="mt-2 w-full bg-white hover:bg-slate-200 text-slate-900 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            Free Preview
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2: Drama -->
+      <a href="#reader-modal" class="card card-drama flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/d2.jpg" alt="When Marriages Fracture" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">When Marriages Fracture</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="text-slate-400">Drama</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.5 <span class="text-slate-500 font-normal">(215)</span>
+          </div>
+          <div class="mt-2 w-full bg-white hover:bg-slate-200 text-slate-900 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            Free Preview
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 3: Drama -->
+      <a href="#reader-modal" class="card card-drama flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/d3.jpg" alt="I Quit Being Your Wife" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">I Quit Being Your Wife</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="text-slate-400">Drama</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.5 <span class="text-slate-500 font-normal">(215)</span>
+          </div>
+          <div class="mt-2 w-full bg-white hover:bg-slate-200 text-slate-900 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            Free Preview
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 4: Drama -->
+      <a href="#reader-modal" class="card card-drama flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/d4.jpg" alt="Expiration Date" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">So Women Have an Expiration Date?</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Drama</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.7 <span class="text-slate-500 font-normal">(63)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            2 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 5: Drama -->
+      <a href="#reader-modal" class="card card-drama flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/d5.jpg" alt="Plus-sized Misadventures" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded leading-tight">Only on<br><span class="text-amber-400">MP</span></span>
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">Plus-sized Misadventures in Love!</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Drama</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.7 <span class="text-slate-500 font-normal">(63)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            2 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 1: Action -->
+      <a href="#reader-modal" class="card card-action flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/a1.jpg" alt="Unrivaled Reincarnated Sage" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">The Unrivaled Reincarnated Sage of Another World</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Action</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.8 <span class="text-slate-500 font-normal">(910)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            1 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2: Action -->
+      <a href="#reader-modal" class="card card-action flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/a2.jpg" alt="Overshadowed to Overpowered" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">From Overshadowed to Overpowered</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Action</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.8 <span class="text-slate-500 font-normal">(910)</span>
+          </div>
+          <div class="mt-2 w-full bg-white hover:bg-slate-200 text-slate-900 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            Free Preview
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 3: Action -->
+      <a href="#reader-modal" class="card card-action flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/a3.jpg" alt="Basilisk" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">Basilisk</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Action</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.8 <span class="text-slate-500 font-normal">(910)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            1 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 4: Action -->
+      <a href="#reader-modal" class="card card-action flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/a4.jpg" alt="Air" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">Air</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Action</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.8 <span class="text-slate-500 font-normal">(910)</span>
+          </div>
+          <div class="mt-2 w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            1 CH Free
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 5: Action -->
+      <a href="#reader-modal" class="card card-action flex flex-col group">
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-900">
+          <img src="/public/img/a5.jpg" alt="Cyber Overdrive" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+        </div>
+        <div class="mt-2 flex-1 flex flex-col justify-between space-y-1">
+          <h3 class="text-sm font-bold text-slate-100 truncate">Cyber Overdrive</h3>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">New</span>
+            <span class="text-slate-400">Action</span>
+          </div>
+          <div class="text-xs text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> 4.8 <span class="text-slate-500 font-normal">(910)</span>
+          </div>
+          <div class="mt-2 w-full bg-white hover:bg-slate-200 text-slate-900 font-bold text-xs py-2 rounded-full text-center transition shadow-sm">
+            Free Preview
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- Reader Modal (Pure CSS `:target`) -->
+  <div id="reader-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex-col">
+    <!-- Reader Header -->
+    <div class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <a href="#" class="text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </a>
+        <div>
+          <h3 class="font-bold text-white text-base">Sample Chapter</h3>
+          <p class="text-xs text-slate-400">Chapter 1</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="#" class="bg-pink-600 hover:bg-pink-500 text-white px-4 py-1.5 rounded text-xs transition font-semibold">
+          Close Reader
+        </a>
+      </div>
+    </div>
+
+    <!-- Reader Canvas Area -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar flex items-center justify-center p-4">
+      <div class="max-w-2xl w-full bg-slate-900 border border-slate-800 rounded-lg overflow-hidden shadow-2xl">
+        <img src="/public/img/0.jpg" alt="Manga Page" class="w-full h-auto object-contain max-h-[80vh] mx-auto">
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer id="footer" class="bg-slate-900 border-t border-slate-800 text-slate-300 pt-16 pb-8 mt-20">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+        
+        <!-- Brand & About Column -->
+        <div class="lg:col-span-2 space-y-4">
+          <a href="#" class="text-2xl font-extrabold text-white flex items-center gap-2">
+            <i class="fa-solid fa-book-open text-pink-500"></i>
+            Manga<span class="text-pink-500">Read</span>
+          </a>
+          <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
+            Your premier online destination to read thousands of high-quality manga chapters digitally or collect rare physical volumes delivered straight to your door.
+          </p>
+          <!-- Social Icons -->
+          <div class="flex gap-3 pt-2">
+            <a href="#" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-pink-600 hover:text-white text-slate-400 flex items-center justify-center transition"><i class="fab fa-discord"></i></a>
+            <a href="#" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-pink-600 hover:text-white text-slate-400 flex items-center justify-center transition"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-pink-600 hover:text-white text-slate-400 flex items-center justify-center transition"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-pink-600 hover:text-white text-slate-400 flex items-center justify-center transition"><i class="fab fa-reddit-alien"></i></a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4 border-l-2 border-pink-500 pl-2">Navigation</h4>
+          <ul class="space-y-2.5 text-sm">
+            <li><a href="#" class="hover:text-pink-400 transition">Latest Chapters</a></li>
+            <li><a href="#featured" class="hover:text-pink-400 transition">Popular Series</a></li>
+            <li><a href="#" class="hover:text-pink-400 transition">New Physical Releases</a></li>
+            <li><a href="#" class="hover:text-pink-400 transition">Weekly Rankings</a></li>
+          </ul>
+        </div>
+
+        <!-- Genres -->
+        <div>
+          <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4 border-l-2 border-pink-500 pl-2">Top Genres</h4>
+          <ul class="space-y-2.5 text-sm">
+            <li><a href="#" class="hover:text-pink-400 transition">Action / Shonen</a></li>
+            <li><a href="#" class="hover:text-pink-400 transition">Boys' Love (BL)</a></li>
+            <li><a href="#" class="hover:text-pink-400 transition">Romance & Drama</a></li>
+            <li><a href="#" class="hover:text-pink-400 transition">Fantasy & Isekai</a></li>
+            <li><a href="#" class="hover:text-pink-400 transition">Sci-Fi & Cyberpunk</a></li>
+          </ul>
+        </div>
+
+        <!-- Newsletter Column -->
+        <div>
+          <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4 border-l-2 border-pink-500 pl-2">Stay Updated</h4>
+          <p class="text-slate-400 text-xs mb-3">Get notified about new chapter drops & restocks.</p>
+          <form class="space-y-2">
+            <input 
+              type="email" 
+              placeholder="Enter your email..." 
+              class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-pink-500 transition"
+            />
+            <button type="button" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-semibold py-2 rounded-lg text-xs transition shadow-md shadow-pink-600/20">
+              Subscribe
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <p>© 2026 MangaRead Store. All rights reserved.</p>
+        
+        <!-- Privacy Links -->
+        <div class="flex gap-6">
+          <a href="#" class="hover:text-slate-400 transition">Privacy Policy</a>
+          <a href="#" class="hover:text-slate-400 transition">Terms of Service</a>
+          <a href="#" class="hover:text-slate-400 transition">DMCA & Copyright</a>
+        </div>
+
+        <!-- Payment Badges -->
+        <div class="flex gap-3 text-base text-slate-400">
+          <i class="fab fa-cc-visa hover:text-white transition"></i>
+          <i class="fab fa-cc-mastercard hover:text-white transition"></i>
+          <i class="fab fa-cc-paypal hover:text-white transition"></i>
+          <i class="fab fa-apple-pay hover:text-white transition"></i>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
